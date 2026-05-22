@@ -8,8 +8,9 @@ memory/
 reports/
 social/
 
-# Target-specific data (extracted APKs, binaries, etc.)
-targets/boozt-android/
+# Target-specific data — only scaffold .md files are committed
+targets/*
+!targets/*.md
 
 # macOS
 .DS_Store
