@@ -1,177 +1,135 @@
-   ______      __                     __  ___      __  __              
-  / ____/___  / /___  ____  __  __   /  |/  /_  __/ /_/ /_  ____  _____
- / /   / __ \/ / __ \/ __ \/ / / /  / /|_/ / / / / __/ __ \/ __ \/ ___/
-/ /___/ /_/ / / /_/ / / / / /_/ /  / /  / / /_/ / /_/ / / / /_/ (__  ) 
-\____/\____/_/\____/_/ /_/\__, /  /_/  /_/\__, /\__/_/ /_/\____/____/  
-                         /____/          /____/                        
+<p align="center">
+  <img src="https://img.shields.io/badge/colony-mythos-8A2BE2?style=for-the-badge" alt="colony-mythos">
+  <br>
+  <em>Evolutionary multi-agent vulnerability hunting</em>
+</p>
 
-     Evolutionary multi-agent vulnerability hunting colony
-    genomes · queens · social networks · differential oracles
+---
 
-┌──────────────────────────────────────────────────────────────────────────┐
-│  One queen. A population of LLM workers. Each carries a genome —          │
-│  a hypothesis about where a vulnerability lives. The queen scores         │
-│  fitness, evolves genomes, kills the weak, and promotes the sharp.        │
-│                                                                          │
-│  Findings flow through the 8-stage Mythos pipeline (Recon → Hunt →       │
-│  Validate → Gapfill → Dedupe → Trace → Feedback → Report), but the       │
-│  pipeline isn't just a conveyor belt — every stage feeds genetic          │
-│  signals back into the colony. Validate CONFIRMED? Pattern-export.        │
-│  Validate REJECTED? Absorb corrected scope into the genome. Trace         │
-│  REACHABLE? Spawn consumer-trace workers. Not reachable? Archive.         │
-│                                                                          │
-│  The pipeline and the evolution are symbiotic — each feeds the other.     │
-└──────────────────────────────────────────────────────────────────────────┘
+**One queen. A population of LLM workers. Each carries a genome — a hypothesis about where a vulnerability lives.**
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Workers hunt. The queen scores fitness, evolves genomes, kills the weak, promotes the sharp. Findings flow through an 8-stage Mythos pipeline — but the pipeline isn't a conveyor belt. Every stage feeds genetic signals back into the colony. The pipeline and the evolution are **symbiotic**, not sequential.
 
-▌ ARCHITECTURE
+No Python machinery. No CLI. Hermes Agent **is** the Queen.
 
-┌──────────────────────────────────────────────────────────────┐
-│                    COLONY-MYTHOS                              │
-├──────────────────────────────────────────────────────────────┤
-│                                                              │
-│   THE SUBSTRATE                 THE DECISION ENGINE          │
-│                                                              │
-│   ┌──────────────────────┐    ┌──────────────────────────┐  │
-│   │ 8-Stage Pipeline     │    │ Queen Cycle              │  │
-│   │                      │    │                          │  │
-│   │ Recon → Hunt →       │◄──►│ ASSESS → EVOLVE →       │  │
-│   │ Validate → Gapfill → │ █  │ ALLOCATE →              │  │
-│   │ Dedupe → Trace →     │ █  │ STAGE_ADVANCE →         │  │
-│   │ Feedback → Report    │ █  │ SYNTHESIZE              │  │
-│   │                      │    │                          │  │
-│   │ What happens to      │    │ What to hunt next        │  │
-│   │ findings             │    │                          │  │
-│   └──────────┬───────────┘    └───────────┬──────────────┘  │
-│              │                            │                  │
-│              └──────────┬─────────────────┘                  │
-│                         │                                    │
-│              ┌──────────▼──────────┐                        │
-│              │  PIPELINE-QUEEN     │                        │
-│              │  BRIDGE             │                        │
-│              │                     │                        │
-│              │  signals ↑  tasks ↓ │                        │
-│              └──────────┬──────────┘                        │
-│                         │                                    │
-│   Pipeline stages →  genetic signals →  Queen evolves       │
-│   Queen actions →  pipeline tasks →  findings advance       │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
+---
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## How It Works
 
-▌ THE PIPELINE-QUEEN BRIDGE
+```
+                    PIPELINE (substrate)          QUEEN (decision engine)
+                    ─────────────────────         ────────────────────────
 
-Pipeline stages don't just advance findings — they produce genetic signals
-that the Queen uses to evolve genomes:
+  Recon ──→ Hunt ──→ Validate ──→ Gapfill        ASSESS → EVOLVE → ALLOCATE
+                                        │              ↑           │
+  Dedupe ←── Trace ←── Feedback ←─ Report              │           ↓
+       │                                                 │     STAGE_ADVANCE
+       │                    ┌─────────────┐              │           │
+       └───────────────────→│   BRIDGE    │←─────────────┘           │
+                            │ signals  tasks                         │
+                            └─────────────┘                   SYNTHESIZE
+```
 
-┌──────────────┬──────────────────────────┬──────────────────────────────┐
-│ Stage        │ Signal                   │ Queen Response               │
-├──────────────┼──────────────────────────┼──────────────────────────────┤
-│ Recon        │ Attack-surface tiers     │ Seed genomes per surface     │
-│ Hunt         │ Fitness scores, DNA      │ Score workers, evolve        │
-│ Validate     │ CONFIRMED → pattern      │ Pattern-export mutation      │
-│ Validate     │ REJECTED → overstated    │ Absorb corrected scope       │
-│ Gapfill      │ Under-covered area       │ Lateral/random mutation      │
-│ Dedupe       │ Pattern cluster found    │ Grep-walk sibling subsystems │
-│ Trace        │ REACHABLE → exploitable  │ Consumer-trace spawn         │
-│ Trace        │ NOT REACHABLE → dead end │ Archive, enrich dead surface │
-│ Feedback     │ New consumer hunt tasks  │ Spawn consumer workers       │
-│ Report       │ Structured finding       │ Hall of fame, pattern lib    │
-└──────────────┴──────────────────────────┴──────────────────────────────┘
+Pipeline stages produce **genetic signals**:
 
-And Queen decisions generate pipeline tasks:
+| Stage | Signal | Queen responds |
+|-------|--------|----------------|
+| Validate CONFIRMED | Pattern detected | Pattern-export mutation, spawn siblings |
+| Validate REJECTED | Scope overstated | Absorb corrected scope into genome DNA |
+| Gapfill | Under-covered area | Lateral/random mutation on that surface |
+| Trace REACHABLE | Bug is exploitable | Spawn consumer-trace workers |
+| Trace NOT REACHABLE | Dead end | Archive, enrich dead surface registry |
 
-┌──────────────────────┬──────────────────┬────────────────┐
-│ Queen Action         │ Pipeline Task    │ Stage          │
-├──────────────────────┼──────────────────┼────────────────┤
-│ SPAWN (hunt)         │ Hunt task        │ Stage 2        │
-│ STAGE_ADVANCE        │ Validate task    │ Stage 3        │
-│ KILL + absorb DNA    │ Gapfill task     │ Stage 4        │
-│ BUG_ARCHIVE          │ Trace → Report   │ Stages 6 → 8   │
-│ PATTERN_EXPORT       │ Hunt × N siblings│ Stage 2        │
-└──────────────────────┴──────────────────┴────────────────┘
+Queen decisions generate **pipeline tasks**:
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+| Action | Creates | Stage |
+|--------|---------|-------|
+| SPAWN (hunt) | Hunt task | Stage 2 |
+| STAGE_ADVANCE | Validate task (different model) | Stage 3 |
+| KILL + absorb DNA | Gapfill task | Stage 4 |
+| BUG_ARCHIVE | Trace → Report | Stages 6 → 8 |
+| PATTERN_EXPORT | Hunt × N sibling subsystems | Stage 2 |
 
-▌ KEY RULES
+---
 
-  ◈  Never Validate without a DIFFERENT model
-  ◈  Never Trace without a consumer repo list
-  ◈  Validate verdicts MUST feed back into genome evolution
-  ◈  Absorb DNA from killed genomes before disposal
-  ◈  Narrow scope produces better findings
-  ◈  "It works correctly" is a kill signal
+## The Queen Cycle
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+1. ASSESS        Read social feed + pipeline stage signals
+2. EVOLVE        Mutate genomes — use pipeline signals, not just fitness
+3. ALLOCATE      Portfolio: coverage sweep → signal exploitation → pattern export
+4. STAGE_ADVANCE  Generate pipeline tasks from every decision
+5. SYNTHESIZE    Cross-worker pattern detection
+```
 
-▌ THE QUEEN CYCLE
+### Genome System
 
-  1. ASSESS        Read social feed + pipeline signals
-  2. EVOLVE        Mutate genomes using pipeline signals
-  3. ALLOCATE      Portfolio: coverage vs exploit vs export
-  4. STAGE_ADVANCE  Generate pipeline tasks from decisions
-  5. SYNTHESIZE    Cross-worker pattern detection
+Each worker carries a living genome that compounds knowledge across generations:
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+genome-NNN.md
+├── Hypothesis       Specific multi-factor vulnerability prediction
+├── DNA              Mechanisms · guards encountered · failed approaches
+├── Evolution Plan   v1 → v2 → v3 bypass angles
+├── Mutation History Full lineage
+└── Pipeline Signals What stages told us about this genome
+```
 
-▌ QUICK START
+**11 mutation types:** narrow · intensify · lateral · recombine · source-pivot · factor-add · pattern-export · chain-extend · consumer-trace · deopt-pivot · random
 
-  cd ~/colony-mythos
+**Fitness rubric (0-5):** defense-confirming (kill) → shallow → productive → high-signal → confirmed (BUG_ARCHIVE)
 
-  # Start a colony on any target
-  "Start a colony on /Applications/Insomnia.app — Electron app"
-  "Hunt this Android APK at /path/to/app.apk"
-  "Start a colony on https://github.com/org/repo — source repo"
+---
 
-  # Drive the colony
-  "Run a cycle"
-  "Show me the feed"
-  "What's the colony status?"
+## Rules
 
-  # Seven target scaffolds included
-  source-repo · electron-app · web-app · container-image
-  binary-executable · android-app · ios-app
+- **Never Validate without a DIFFERENT model**
+- **Never Trace without a consumer repo list**
+- **Validate verdicts MUST feed back into genome evolution**
+- **Absorb DNA from killed genomes before disposal**
+- Narrow scope produces better findings
+- "It works correctly" is a kill signal
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-▌ STATE (everything is markdown + JSONL on disk)
+## Quick Start
 
-  colony-runs/<id>/
-  ├── colony_state.md       Pipeline status · signal log · workers · surfaces
-  ├── genomes/              Per-genome: hypothesis · DNA · evolution plan
-  ├── social/feed.jsonl     Worker posts: differentials · primitives · findings
-  ├── findings/             Confirmed finding records
-  ├── decisions/            Queen decision log per cycle
-  └── reports/              Final structured reports
+```bash
+cd ~/colony-mythos
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# Start a colony on any target type
+"Start a colony on /Applications/Insomnia.app — Electron app"
+"Hunt this Android APK at /path/to/app.apk"  
+"Start a colony on https://github.com/org/repo — source repo"
 
-▌ GENOME SYSTEM
+# Drive the colony
+"Run a cycle"
+"Show me the social feed"
+"What's the colony status?"
+```
 
-  Each worker carries a genome — a living document that compounds knowledge:
+**Seven target scaffolds:** `source-repo` · `electron-app` · `web-app` · `container-image` · `binary-executable` · `android-app` · `ios-app`
 
-  genome-NNN.md
-  ├── Hypothesis     Specific multi-factor vulnerability prediction
-  ├── DNA            Accumulated: mechanisms · guards · techniques · failures
-  ├── Evolution Plan v1 → v2 → v3 bypass angles
-  ├── Mutation History   Full lineage
-  └── Pipeline Signals   What stages told us about this genome
+---
 
-  11 mutation types: narrow · intensify · lateral · recombine · source-pivot
-  factor-add · pattern-export · chain-extend · consumer-trace · deopt-pivot · random
+## Colony State
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Everything is markdown + JSONL on disk:
 
-▌ CREDITS
+```
+colony-runs/<id>/
+├── colony_state.md      Pipeline status · signal log · workers · surfaces
+├── genomes/             Per-genome: hypothesis · DNA · evolution plan
+├── social/feed.jsonl    Worker posts: differentials · primitives · findings
+├── findings/            Confirmed finding records
+├── decisions/           Queen decision log per cycle
+└── reports/             Final structured reports
+```
 
-  ◈ colony_agent by @qriousec — evolutionary colony architecture, genome system
-  ◈ Project Glasswing (Cloudflare) — Mythos 8-stage pipeline
-    https://blog.cloudflare.com/cyber-frontier-models/
-  ◈ Hermes Agent by Nous Research — the agent runtime
+---
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## Credits
 
-No Python machinery. No CLI. Hermes Agent IS the Queen.
-Just prompts. Just markdown. Just evolution.
+- **[colony_agent](https://github.com/qriousec/colony_agent)** by @qriousec — evolutionary colony architecture, genome system, fitness scoring
+- **[Project Glasswing](https://blog.cloudflare.com/cyber-frontier-models/)** (Cloudflare) — Mythos 8-stage pipeline, adversarial validation, consumer tracing
+- **[Hermes Agent](https://github.com/NousResearch/hermes-agent)** — the agent runtime
