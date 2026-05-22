@@ -11,7 +11,33 @@ Copy this file to `colony-runs/<colony-id>/colony_state.md` and fill in.
 **Started:** YYYY-MM-DDTHH:MM:SS
 **Cycle:** 0
 **Phase:** phase1
-**Pipeline Stage:** recon
+
+---
+
+## Pipeline Status
+
+*Each pipeline stage tracks active, completed, and blocked tasks. Queen decisions create pipeline tasks. Pipeline outputs become genetic signals.*
+
+| Stage | Active | Completed | Blocked |
+|-------|--------|-----------|---------|
+| Recon | 0 | 0 | 0 |
+| Hunt | 0 | 0 | 0 |
+| Validate | 0 | 0 | 0 |
+| Gapfill | 0 | 0 | 0 |
+| Dedupe | 0 | 0 | 0 |
+| Trace | 0 | 0 | 0 |
+| Feedback | 0 | 0 | 0 |
+| Report | 0 | 0 | 0 |
+
+---
+
+## Pipeline → Queen Signal Log
+
+*Every pipeline stage output that affects genome evolution is logged here.*
+
+| Cycle | Stage | Signal | Finding/Worker | Genome Effect |
+|-------|-------|--------|----------------|---------------|
+| — | — | — | — | — |
 
 ---
 
@@ -49,7 +75,7 @@ Copy this file to `colony-runs/<colony-id>/colony_state.md` and fill in.
 
 ## Dead Surfaces
 
-*Surfaces confirmed defended by 2+ workers with no unexhausted blind spots.*
+*Surfaces confirmed defended by 2+ workers with no unexhausted blind spots. Includes DNA absorbed from killed genomes (guards encountered, failed approaches).*
 
 | Surface | Why Dead | Guard Location | Confirmed By | Cycle |
 |---------|----------|----------------|--------------|-------|
@@ -79,9 +105,9 @@ Copy this file to `colony-runs/<colony-id>/colony_state.md` and fill in.
 
 ## Findings
 
-| ID | Title | Severity | Stage | PoC Status | Genome |
-|----|-------|----------|-------|------------|--------|
-| | | | | | |
+| ID | Title | Severity | Pipeline Stage | PoC Status | Validated | Reachable | Genome |
+|----|-------|----------|---------------|------------|-----------|-----------|--------|
+| | | | | | | | |
 
 ---
 
