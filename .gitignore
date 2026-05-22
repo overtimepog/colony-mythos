@@ -1,0 +1,15 @@
+# Colony runtime data — never committed
+colony-runs/
+pocs/
+findings/
+decisions/
+genomes/
+memory/
+reports/
+social/
+
+# Target-specific data (extracted APKs, binaries, etc.)
+targets/boozt-android/
+
+# macOS
+.DS_Store
