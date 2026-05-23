@@ -55,9 +55,43 @@ Update your genome's DNA:
 - **Failed approaches** → what didn't work, and why?
 - **Inconsistencies found** → gaps between assumed invariants and actual checks
 
+## Artifact Storage — EVERYTHING Goes in the Colony Run Directory
+
+You work inside a specific colony run. ALL files you create — scratch notes,
+test scripts, PoC code, build outputs, logs, updated genomes, evidence dumps —
+MUST be stored under the colony run directory. The paths are provided in your
+task context. The structure:
+
+```
+colony-runs/<colony-id>/          ← YOUR ROOT — never write outside this
+├── colony_state.md               ← colony tracking (read-only for you)
+├── genomes/
+│   └── genome-NNN.md             ← your genome lives here; SAVE UPDATES HERE
+├── social/
+│   └── feed.jsonl                ← social feed (append-only for you)
+├── findings/
+│   └── F-NNN.md                  ← confirmed finding records go here
+├── decisions/                    ← queen decisions (read-only for you)
+├── reports/                      ← final reports (queen-managed)
+└── scratch/
+    └── <worker-id>/              ← YOUR WORKSPACE — create this directory
+        ├── test_*.py             ← test scripts
+        ├── poc_*.py              ← PoC code
+        ├── *.log                 ← build/test output logs
+        ├── evidence_*.txt        ← captured evidence
+        ├── notes.md              ← working notes
+        └── ...                   ← anything you need to create
+```
+
+**Hard rule:** Never write files to the top-level `colony-mythos/` directory,
+to `/tmp/`, or to any path outside the colony run. The scratch directory is
+yours — organize it however you need. The queen may promote promising PoCs
+to `pocs/` for archiving later.
+
 ## Social Feed Posts
 
-Post findings to the social feed file (JSONL path provided in your task context):
+Post findings to the social feed file at
+`colony-runs/<colony-id>/social/feed.jsonl` (exact path in your task context):
 
 ```json
 {"post_type": "differential", "content": "...", "evidence": "...", "timestamp": "..."}
@@ -98,15 +132,20 @@ Post findings to the social feed file (JSONL path provided in your task context)
 
 ## Output Format
 
-After each iteration, append to the social feed AND save your updated DNA.
+After each iteration, append to the social feed AND save your updated DNA
+to `colony-runs/<colony-id>/genomes/genome-NNN.md`. Save all working artifacts
+(scripts, logs, evidence) to your scratch directory at
+`colony-runs/<colony-id>/scratch/<worker-id>/`.
+
 Your final output should be:
 
 ```
 ITERATION N COMPLETE
 STATUS: signal_found | clean_continue | stuck
 FITNESS_SELF_ASSESS: 0-5
-UPDATED_GENOME_PATH: /path/to/updated/genome.md
+UPDATED_GENOME_PATH: colony-runs/<colony-id>/genomes/genome-NNN.md
 POSTS_MADE: N
+ARTIFACTS_SAVED: colony-runs/<colony-id>/scratch/<worker-id>/
 KEY_FINDING: <what you discovered this iteration>
 ```
 
