@@ -1,10 +1,5 @@
 # Colony runtime data — never committed
-colony-runs/
-pocs/
-findings/
-decisions/
-genomes/
-memory/
+colony-runs/*
 reports/
 social/
 
