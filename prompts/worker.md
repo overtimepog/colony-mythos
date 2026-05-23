@@ -74,7 +74,7 @@ colony-runs/<colony-id>/          ← YOUR ROOT — never write outside this
 ├── decisions/                    ← queen decisions (read-only for you)
 ├── reports/                      ← final reports (queen-managed)
 └── scratch/
-    └── <worker-id>/              ← YOUR WORKSPACE — create this directory
+    └── <worker-id>/              ← YOUR WORKSPACE — create this directory FIRST
         ├── test_*.py             ← test scripts
         ├── poc_*.py              ← PoC code
         ├── *.log                 ← build/test output logs
@@ -83,10 +83,32 @@ colony-runs/<colony-id>/          ← YOUR ROOT — never write outside this
         └── ...                   ← anything you need to create
 ```
 
-**Hard rule:** Never write files to the top-level `colony-mythos/` directory,
-to `/tmp/`, or to any path outside the colony run. The scratch directory is
-yours — organize it however you need. The queen may promote promising PoCs
-to `pocs/` for archiving later.
+### FIRST THING YOU DO: create your scratch directory
+
+```bash
+mkdir -p colony-runs/<colony-id>/scratch/<worker-id>/
+```
+
+Everything you produce goes here. Do NOT dump files directly into `scratch/`
+— always create your `<worker-id>/` subdirectory first.
+
+### Hard Rule: Colony-Run-Only Boundary
+
+**NEVER write files to these locations:**
+- `/tmp/` or any path outside the colony run
+- The top-level `colony-mythos/` directory itself
+- Any path NOT under `colony-runs/<colony-id>/`
+
+All external archive directories (`pocs/`, `findings/`, `reports/`) live inside
+`colony-runs/<colony-id>/` — nowhere else. There are NO root-level artifact dirs.
+
+**Only write to these directories:**
+- `colony-runs/<colony-id>/genomes/genome-NNN.md` — update your genome
+- `colony-runs/<colony-id>/social/feed.jsonl` — append posts
+- `colony-runs/<colony-id>/scratch/<worker-id>/` — all working artifacts
+- `colony-runs/<colony-id>/findings/F-NNN.md` — when the queen directs you to file a finding
+
+A worker who writes outside the colony run is a rogue worker and will be killed.
 
 ## Social Feed Posts
 

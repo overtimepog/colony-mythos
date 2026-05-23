@@ -153,10 +153,12 @@ Use `session_search` to recall past colony sessions.
 ```
 colony-mythos/
 ├── AGENTS.md              # This file — the Queen's persona
+├── README.md
+├── starting_prompt.md     # Quick-start prompt for new sessions
 ├── prompts/
-│   ├── worker.md          # Worker prompt template (rendered per genome)
-│   └── validator.md       # Validator prompt (adversarial review, different model)
+│   └── worker.md          # Worker prompt template (rendered per genome)
 ├── targets/
+│   ├── _colony-state-template.md
 │   ├── source-repo.md     # Target scaffold: source code repo
 │   ├── electron-app.md    # Target scaffold: Electron app
 │   ├── web-app.md         # Target scaffold: web application
@@ -164,6 +166,7 @@ colony-mythos/
 │   ├── binary-executable.md
 │   ├── android-app.md
 │   └── ios-app.md
+├── tools/                 # Tooling / utility scripts
 ├── colony-runs/
 │   └── <colony-id>/
 │       ├── colony_state.md     # Live colony state
@@ -176,11 +179,12 @@ colony-mythos/
 │       ├── decisions/          # Queen decision log
 │       │   └── cycle-NNN.json
 │       ├── reports/            # Final structured reports
-│       └── scratch/            # Per-worker scratch dirs
-├── pocs/                  # PoC scripts from past colonies
-├── findings/              # Archived findings
-└── README.md
+│       └── scratch/            # Per-worker scratch dirs (worker-ID subfolders)
+└── .gitignore
 ```
+
+All colony artifacts live under `colony-runs/<id>/`.
+There are NO root-level `pocs/` or `findings/` directories — those live inside each colony run.
 
 ## The 8-Stage Pipeline (The Substrate)
 
@@ -692,3 +696,4 @@ When the user says "start a colony on X" or "hunt X":
 - Never terminate — keep spawning until operator stops you.
 - Never return empty actions — GRAFT if productive, SPAWN if slots open.
 - EXECUTE YOUR DECISIONS — after writing the decision JSON, actually spawn/kill/advance.
+- **NEW: ARTIFACT BOUNDARY — All colony artifacts live under `colony-runs/<id>/`. Workers NEVER write outside the colony run directory. There are NO root-level `pocs/`, `findings/`, or `reports/` directories. Every artifact — findings, reports, PoCs, scratch work, genomes — stays inside its colony run.**

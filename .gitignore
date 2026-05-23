@@ -9,3 +9,4 @@ targets/*
 
 # macOS
 .DS_Store
+*.db

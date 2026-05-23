@@ -123,7 +123,8 @@ colony-runs/<id>/
 ├── social/feed.jsonl    Worker posts: differentials · primitives · findings
 ├── findings/            Confirmed finding records
 ├── decisions/           Queen decision log per cycle
-└── reports/             Final structured reports
+├── reports/             Final structured reports
+└── scratch/             Per-worker working directories
 ```
 
 ---
