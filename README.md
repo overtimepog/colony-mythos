@@ -10,7 +10,8 @@
 
 Workers hunt. The queen scores fitness, evolves genomes, kills the weak, promotes the sharp. Findings flow through an 8-stage Mythos pipeline — but the pipeline isn't a conveyor belt. Every stage feeds genetic signals back into the colony. The pipeline and the evolution are **symbiotic**, not sequential.
 
-No Python machinery. No CLI. Hermes Agent **is** the Queen.
+No Python orchestration machinery. Hermes Agent **is** the Queen.
+The colony still builds its own internal reusable tools and CLIs as hunting primitives.
 
 ---
 
@@ -87,8 +88,29 @@ genome-NNN.md
 - **Never Trace without a consumer repo list**
 - **Validate verdicts MUST feed back into genome evolution**
 - **Absorb DNA from killed genomes before disposal**
+- **Build colony-native tools/CLIs for repeated checks, not one-off scripts**
+- **Workers build reusable tooling inside the active colony run; Queen promotes proven tools to tools/**
+- **Reusable tools must be parameterized for any target (URL/paths/headers/auth/rate/output as args)**
+- **One-off hardcoded scripts are negative fitness unless refactored to reusable primitives**
+- **All artifacts must stay inside colony-runs/<id>/ (no root-level findings/reports/pocs)**
 - Narrow scope produces better findings
 - "It works correctly" is a kill signal
+
+---
+
+## Tool Evolution Doctrine
+
+The colony treats tools as evolving capability, not disposable glue.
+
+- Build internal CLIs with stable flags (for example: `--target`, `--paths`, `--headers-file`, `--auth`, `--rate-limit`, `--output`).
+- Prefer reusable primitives (CSP auditor, OAuth redirect validator, cache poisoning probe) over target-specific checks.
+- Keep detection engines generic and move target-specific values into arguments or config.
+- Prove portability on at least 2 distinct targets before promoting a tool lineage.
+- Develop tools in `colony-runs/<id>/scratch/<worker-id>/`; promote to `tools/` only after Queen review.
+
+Example:
+- Bad: script that checks only one hostname/endpoint.
+- Good: parameterized CLI that accepts any website and emits structured findings.
 
 ---
 
@@ -123,9 +145,12 @@ colony-runs/<id>/
 ├── social/feed.jsonl    Worker posts: differentials · primitives · findings
 ├── findings/            Confirmed finding records
 ├── decisions/           Queen decision log per cycle
+├── pocs/                Canonical PoC scripts per finding
 ├── reports/             Final structured reports
 └── scratch/             Per-worker working directories
 ```
+
+Artifact boundary is strict: all worker outputs, scripts, and evidence stay under the active `colony-runs/<id>/` directory.
 
 ---
 
