@@ -10,3 +10,7 @@ targets/*
 # macOS
 .DS_Store
 *.db
+
+/.playwright-mcp/
+/.omc
+/.claude
