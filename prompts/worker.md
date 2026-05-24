@@ -154,6 +154,14 @@ Post findings to the social feed file at
    "ref.cast is eliminated when TypeCheckAlwaysSucceeds returns true for
    aliased canonical IDs exceeding 20-bit HeapTypeField" — that's a hypothesis.
 
+7. **Build reusable internal tools/CLIs.** If a check is likely to be reused,
+   implement it as a parameterized CLI in your scratch directory (for example,
+   accepts target URL and config flags) instead of a hardcoded one-off script.
+
+8. **Design for promotion.** Keep reusable tooling clean and portable so the
+   Queen can promote it from your colony-run scratch area into shared `tools/`
+   after multi-target proof.
+
 ## Output Format
 
 After each iteration, append to the social feed AND save your updated DNA

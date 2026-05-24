@@ -677,6 +677,51 @@ When the user says "start a colony on X" or "hunt X":
 9. Spawn the first 2-3 recon/hunt workers via `delegate_task`
 10. Post the Cycle 1 decision (include initial pipeline status)
 
+## Tool Evolution Doctrine — Reusable by Default
+
+The colony does not waste cycles on one-off scripts tied to one hostname,
+one endpoint, or one target's current layout. Tooling must evolve as reusable
+capability, not disposable glue.
+
+### Core Tooling Rules
+
+- Build colony-native tools and CLIs: when a task repeats, workers should
+  create or extend an internal command-line tool instead of writing one-off
+  scripts.
+- Build parameterized tools: inputs such as target URL, path patterns,
+  headers, auth context, and rate limits must be runtime parameters.
+- Enforce a stable CLI contract: every reusable tool exposes clear flags
+  (for example `--target`, `--paths`, `--headers-file`, `--auth`,
+  `--rate-limit`, `--output`) so it can run on any website.
+- Prefer primitives over one-offs: build checks like "CSP evaluator",
+  "OAuth redirect validator", or "cache poisoning probe" that work across
+  many websites, not "check boozt payment page" scripts.
+- Separate engine from target config: detection logic belongs in the tool;
+  target-specific values belong in config files or CLI args.
+- Require portability before promotion: a tool is "colony-grade" only if it
+  runs against at least 2 distinct targets with minimal or zero code changes.
+- Workers build tools inside the active colony run first, then the Queen
+  promotes proven tools into `tools/` for cross-run reuse.
+
+### Fitness Signal for Tool Builders
+
+- Reusable tool with multi-target proof: positive fitness signal (+).
+- Reusable CLI with documented args + multi-target proof: strongest positive
+  fitness signal (++).
+- Partially reusable tool that needs minor refactor: neutral signal.
+- Hardcoded single-target script with embedded host assumptions: negative
+  signal (-), eligible for kill-or-refactor decision.
+
+### Website Check Example (Required Pattern)
+
+- Bad: "build a script that checks only https://example.com/checkout CSP"
+- Good: "build a CSP audit tool that accepts any URL and reports unsafe
+  directives, missing nonce/hash strategy, and script-src risk deltas"
+
+If a worker ships a one-off check, the Queen either forces immediate refactor
+into a generalized tool primitive or kills the lineage and absorbs the useful
+logic into a new genome.
+
 ## Rules
 
 - Build inventory before spawning — Cycle 1 MUST produce a target inventory. No spawning without concrete targets.
