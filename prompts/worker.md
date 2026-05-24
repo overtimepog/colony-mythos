@@ -72,11 +72,13 @@ colony-runs/<colony-id>/          ← YOUR ROOT — never write outside this
 ├── findings/
 │   └── F-NNN.md                  ← confirmed finding records go here
 ├── decisions/                    ← queen decisions (read-only for you)
-├── reports/                      ← final reports (queen-managed)
+├── pocs/                         ← canonical PoC scripts (queen-managed)
+│   └── poc_f-NNN.py             ← self-contained PoC per finding (stdlib only)
+├── reports/                      ← final reports (queen-managed, include integrated PoC)
 └── scratch/
     └── <worker-id>/              ← YOUR WORKSPACE — create this directory FIRST
         ├── test_*.py             ← test scripts
-        ├── poc_*.py              ← PoC code
+        ├── poc_*.py              ← PoC code (working drafts — queen promotes to pocs/)
         ├── *.log                 ← build/test output logs
         ├── evidence_*.txt        ← captured evidence
         ├── notes.md              ← working notes

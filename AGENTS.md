@@ -178,13 +178,17 @@ colony-mythos/
 │       │   └── F-NNN.md
 │       ├── decisions/          # Queen decision log
 │       │   └── cycle-NNN.json
-│       ├── reports/            # Final structured reports
+│       ├── pocs/               # Canonical PoC scripts for each finding
+│       │   └── poc_f-NNN.py    # Self-contained PoC (stdlib only)
+│       ├── reports/            # Final structured reports (include integrated PoC)
 │       └── scratch/            # Per-worker scratch dirs (worker-ID subfolders)
 └── .gitignore
 ```
 
 All colony artifacts live under `colony-runs/<id>/`.
 There are NO root-level `pocs/` or `findings/` directories — those live inside each colony run.
+
+**`pocs/` directory**: Each `poc_f-NNN.py` is a self-contained Python script (stdlib only) that proves the corresponding finding. The `reports/` directory contains final submission-ready reports that integrate the PoC — code paths, trigger, impact, and remediation all in one document.
 
 ## The 8-Stage Pipeline (The Substrate)
 
